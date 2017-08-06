@@ -21,9 +21,3 @@ def characterise(data, fetures_indices):
         res.append(SignalsFeatures.call_features_by_indexes(fetures_indices, x, settings, normalise=1))
 
     return res
-
-    # all_features = SignalsFeatures.get_features_list()
-    # for i in range(0, len(all_features)):
-    #
-    #     res = SignalsFeatures.call_feature_by_name(all_features[i], x, settings, normalise=1)
-    #     print({res["function_name"]: res["final_values"]})
