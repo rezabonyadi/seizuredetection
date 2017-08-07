@@ -25,10 +25,10 @@ class KaggleDetection2014:
         # unlabeled_data, _, _, _, _ = KaggleDetection2014.read_data_type(address, folder, test, sampling_rate)
 
         answer_key = '%s/seizureDetectionAnswerKey.csv' % address
-        f = open(answer_key, 'rb')
-        reader = csv.reader(f)
-        for row in reader:
-            i = 0
+        # f = open(answer_key, 'rb')
+        # reader = csv.reader(f)
+        # for row in reader:
+        #     i = 0
 
         data_info = dict()
         data_info["labeled_data"] = labeled_data

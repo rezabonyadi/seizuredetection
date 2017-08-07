@@ -38,8 +38,9 @@ def prepare_data(data, latency_cut=15.0):
     test_in_lat = []
     test_out_lat = []
 
-    test_in = np.reshape(np.transpose(data["unlabeled_data"], axes=(0, 2, 1)),
-                                      (n_instances, n_samples, n_channels))
+    # test_in = np.reshape(np.transpose(data["unlabeled_data"], axes=(0, 2, 1)),
+    #                                   (n_instances, n_samples, n_channels))
 
+    return train_in, train_out
 
 
