@@ -2,6 +2,7 @@ import os
 import numpy as np
 import scipy.io as sio
 from scipy.signal import resample
+import csv
 
 
 class KaggleDetection2014:
@@ -22,6 +23,12 @@ class KaggleDetection2014:
         sequences.extend(temp_sequences)
         unlabeled_data = []
         # unlabeled_data, _, _, _, _ = KaggleDetection2014.read_data_type(address, folder, test, sampling_rate)
+
+        answer_key = '%s/seizureDetectionAnswerKey.csv' % address
+        f = open(answer_key, 'rb')
+        reader = csv.reader(f)
+        for row in reader:
+            i = 0
 
         data_info = dict()
         data_info["labeled_data"] = labeled_data

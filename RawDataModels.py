@@ -28,6 +28,6 @@ def cnn_1d(train_input, train_output):
 
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
     model.fit(train_input, train_output, epochs=50)
-    score = model.evaluate(train_input, train_output, batch_size=32)
-    print(score)
+    # score = model.evaluate(train_input, train_output, batch_size=32)
+    # print(score)
 
