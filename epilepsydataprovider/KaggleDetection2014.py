@@ -20,8 +20,8 @@ class KaggleDetection2014:
         latencies.extend(temp_late)
         labeled_data.extend(temp_data)
         sequences.extend(temp_sequences)
-
-        unlabeled_data, _, _, _, _ = KaggleDetection2014.read_data_type(address, folder, test, sampling_rate)
+        unlabeled_data = []
+        # unlabeled_data, _, _, _, _ = KaggleDetection2014.read_data_type(address, folder, test, sampling_rate)
 
         data_info = dict()
         data_info["labeled_data"] = labeled_data
