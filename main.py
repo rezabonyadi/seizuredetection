@@ -9,8 +9,8 @@ with open('SETTINGS.json') as f:
 
 kaggle_address = str(settings['kaggle-data-dir'])
 
-folders = ["Dog_1"]
-data = SeizureDataRead.read_kaggle_2014(kaggle_address, folders[0], .5)
+folders = ["Dog_3"]
+data = SeizureDataRead.read_kaggle_2014(kaggle_address, folders[0], .3)
 train_in, train_out, train_lat, test_in, test_out, test_lat = SeizureDataRead.prepare_data(data)
 # train_out = np.reshape(data["labels"], (n_instances))
 RawDataModels.cnn_1d(train_in, train_out, test_in, test_out)
