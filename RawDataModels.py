@@ -11,8 +11,7 @@ import keras.backend as K
 
 
 def roc_auc(y_true, y_pred):
-    fp, tp = roc_auc_score(y_true, y_pred)
-    return auc(fp, tp)
+    return roc_auc_score(y_true, y_pred)
 
 def cnn_1d(train_in, train_out, test_in, test_out):
     n_channels = int(train_in[0].shape[1])
@@ -31,11 +30,18 @@ def cnn_1d(train_in, train_out, test_in, test_out):
     model.add(Dense(64, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(2, activation='softmax'))
-    model.summary()
+    # model.summary()
 
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
-    model.fit(train_in, train_out, epochs=200)
-    # score = model.evaluate(test_in, test_out, batch_size=32)
-    test_scores = model.predict_proba(test_in)
-    print(roc_auc(test_out, test_scores))
+    model.fit(train_in, train_out, epochs=1, verbose=0)
+    # score = model.evaluate(test_in, test_out, batch_size=32,verbose=0)
+    # print("")
+    # print(score)
+    train_scores = model.predict_proba(train_in, verbose=0)
+    test_scores = model.predict_proba(test_in, verbose=0)
+    # print("")
+    auc_test = roc_auc(test_out[:, 0], test_scores[:, 0])
+    auc_train = roc_auc(train_out[:, 0], train_scores[:, 0])
+    print('AUC test %f AUC train %f' %(auc_test, auc_train))
+    return model, auc_train, auc_test
 
