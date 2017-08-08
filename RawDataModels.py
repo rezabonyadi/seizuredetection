@@ -6,7 +6,13 @@ from keras.models import Sequential
 from keras.utils import plot_model
 from keras.utils.np_utils import to_categorical
 from matplotlib import pyplot as plt
+from sklearn.metrics import roc_auc_score, auc
+import keras.backend as K
 
+
+def roc_auc(y_true, y_pred):
+    fp, tp = roc_auc_score(y_true, y_pred)
+    return auc(fp, tp)
 
 def cnn_1d(train_in, train_out, test_in, test_out):
     n_channels = int(train_in[0].shape[1])
@@ -29,6 +35,7 @@ def cnn_1d(train_in, train_out, test_in, test_out):
 
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
     model.fit(train_in, train_out, epochs=200)
-    score = model.evaluate(test_in, test_out, batch_size=32)
-    print(score)
+    # score = model.evaluate(test_in, test_out, batch_size=32)
+    test_scores = model.predict_proba(test_in)
+    print(roc_auc(test_out, test_scores))
 
