@@ -22,21 +22,25 @@ def read_kaggle_2014(data_address, subject, sampling_rate=-1, lat_cut=15.0):
 def read_freiburg():
     return None
 
-def prepare_data(data):
+def prepare_data(data, transformation):
     n_seizure = sum(data["labels"])
     n_non_seizure = len(data["labels"]) - n_seizure
     labeled_data, labels = expand_instances(data["labeled_data"], data["labels"], 1, n_non_seizure - n_seizure)
+    unlabeled_data = data["unlabeled_data"]
 
-    n_instances = len(labeled_data)
-    n_channels = labeled_data[0].shape[0]
-    n_samples = labeled_data[0].shape[1]
+    labeled_data_t = transform(labeled_data, transformation)
+    unlabeled_data_t = transform(unlabeled_data, transformation)
 
-    train_in = np.reshape(np.transpose(labeled_data, axes=(0, 2, 1)), (n_instances, n_samples, n_channels))
+    train_instances = len(labeled_data)
+    n_channels = labeled_data_t[0].shape[0]
+    n_samples = labeled_data_t[0].shape[1]
+
+    train_in = np.reshape(np.transpose(labeled_data_t, axes=(0, 2, 1)), (train_instances, n_samples, n_channels))
     train_out = labels
     train_out_lat = data["latencies"]
 
     test_instances = len(data["unlabeled_data"])
-    test_in = np.reshape(np.transpose(data["unlabeled_data"], axes=(0, 2, 1)), (test_instances, n_samples, n_channels))
+    test_in = np.reshape(np.transpose(unlabeled_data_t, axes=(0, 2, 1)), (test_instances, n_samples, n_channels))
     test_out = data["unlabeled_key"]
     test_out_lat = data["unlabeled_lat"]
 
@@ -72,3 +76,18 @@ def expand_instances(train_in, train_out, class_to_expand, extra_instances):
         train_out.append(class_to_expand)
 
     return train_in, train_out
+
+
+def transform(data, transformation):
+    if transformation == 'fft':
+        n_samples = data[0].shape[1]
+        fft_data = np.absolute(np.fft.fft(data, n=None, axis=2))
+        fft_data = fft_data[:, :, 0:int(n_samples / 2)]
+        normalized_d = []
+        for d in fft_data:
+            temp = np.apply_along_axis(np.divide, 0, d, np.sum(d, axis=1))
+            normalized_d.append(temp)
+
+        return normalized_d
+    else:
+        return data
