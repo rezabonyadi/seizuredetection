@@ -36,10 +36,10 @@ def kaggle_data_2014_patient_specific(address):
     for subject in folders:
         data = SeizureDataRead.read_kaggle_2014(address, subject, .25)
         print("Modeling of %s in progress" %subject)
-        train_in, train_out, train_lat, test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, 'none')
+        train_in, train_out, train_lat, test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, 'fft')
         # train_out = np.reshape(data["labels"], (n_instances))
-        # model, acc_train, acc_test = RawDataModels.cnn_1d(train_in, train_out, test_in, test_out)
-        model, acc_train, acc_test = RawDataModels.cnn_2d(train_in, train_out, test_in, test_out)
+        model, acc_train, acc_test = RawDataModels.cnn_1d(train_in, train_out, test_in, test_out)
+        # model, acc_train, acc_test = RawDataModels.cnn_2d(train_in, train_out, test_in, test_out)
         model_details[subject] = model.to_json()
 
         res_details.append((subject, acc_train, acc_test))
