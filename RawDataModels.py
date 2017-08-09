@@ -50,7 +50,7 @@ def cnn_1d(train_in, train_out, test_in, test_out):
     model.add(Dense(2, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
-    model.fit(train_in, train_out, epochs=200, verbose=0)
+    model.fit(train_in, train_out, epochs=100, verbose=0)
     # score = model.evaluate(test_in, test_out, batch_size=32,verbose=0)
     # print("")
     # print(score)
