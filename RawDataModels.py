@@ -44,7 +44,7 @@ class roc_callback(KCallBacks.Callback):
             self.best_weights = self.model.get_weights()
             print("Best updated to: %f" % self.best_auc)
 
-        print('\rroc-auc: %s - roc-auc_val: %s' % (str(round(auc, 4)), str(round(auc_val, 4))), end=100 * ' ' + '\n')
+        # print('\rroc-auc: %s - roc-auc_val: %s' % (str(round(auc, 4)), str(round(auc_val, 4))), end=100 * ' ' + '\n')
         return
 
     def on_batch_begin(self, batch, logs=None):
@@ -116,7 +116,7 @@ def cnn_1d(train_in, train_out, test_in, test_out):
     # keras_recorder = KerasRecorder()
     keras_recorder = roc_callback(train_in, train_out, test_in, test_out)
 
-    model.fit(train_in, train_out, epochs=300, verbose=2,
+    model.fit(train_in, train_out, epochs=300, verbose=0,
               validation_data=(test_in, test_out), callbacks=[keras_recorder])
 
 
