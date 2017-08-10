@@ -28,15 +28,19 @@ def save_details(model_details, res_details, folder):
 def kaggle_data_2014_patient_specific(address):
     folders = ["Dog_1", "Dog_2", "Dog_3", "Dog_4", "Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
                "Patient_6", "Patient_7", "Patient_8"]
-    folders = ["Dog_1"]
-    model_details = dict()
+    # folders = ["Dog_1"]
 
+    processes = dict()
+    processes["transform"] = 'fft'
+    processes["expand"] = 1
+
+    model_details = dict()
     res_details = []
 
     for subject in folders:
         data = SeizureDataRead.read_kaggle_2014(address, subject, .25)
         print("Modeling of %s in progress" %subject)
-        train_in, train_out, train_lat, test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, 'fft')
+        train_in, train_out, train_lat, test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, processes)
         # train_out = np.reshape(data["labels"], (n_instances))
         model, acc_train, acc_test = RawDataModels.cnn_1d(train_in, train_out, test_in, test_out)
         # model, acc_train, acc_test = RawDataModels.cnn_2d(train_in, train_out, test_in, test_out)

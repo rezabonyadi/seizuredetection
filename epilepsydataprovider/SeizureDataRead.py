@@ -22,11 +22,17 @@ def read_kaggle_2014(data_address, subject, sampling_rate=-1, lat_cut=15.0):
 def read_freiburg():
     return None
 
-def prepare_data(data, transformation):
+def prepare_data(data, processes):
+    transformation = processes["transform"]
+    class_to_expand = processes["expand"]
+
     n_seizure = sum(data["labels"])
     n_non_seizure = len(data["labels"]) - n_seizure
-    labeled_data, labels = expand_instances(data["labeled_data"], data["labels"], 1, n_non_seizure - n_seizure)
+    labeled_data = data["labeled_data"]
+    labels = data["labels"]
     unlabeled_data = data["unlabeled_data"]
+
+    labeled_data, labels = expand_instances(labeled_data, labels, class_to_expand, n_non_seizure - n_seizure)
 
     labeled_data_t = transform(labeled_data, transformation)
     unlabeled_data_t = transform(unlabeled_data, transformation)
@@ -48,7 +54,10 @@ def prepare_data(data, transformation):
     return train_in, train_out, train_out_lat, test_in, test_out, test_out_lat
 
 
-def expand_instances(train_in, train_out, class_to_expand, extra_instances):
+def expand_instances(train_in, train_out, class_to_expand, num_extra_instances):
+    if class_to_expand is None:
+        return train_in, train_out
+
     n_instances = len(train_in)
     n_channels = train_in[0].shape[0]
     n_samples = train_in[0].shape[1]
@@ -62,7 +71,7 @@ def expand_instances(train_in, train_out, class_to_expand, extra_instances):
     num_segs = 5
     sample_in_segs = int(np.floor(n_samples/num_segs))
     last_indx = sample_in_segs * num_segs
-    for i in range(extra_instances):
+    for i in range(num_extra_instances):
         indx = np.random.random_integers(0, len(to_expand_indx) - 1)
         indx = to_expand_indx[indx] # True index
         instance_to_perturb = train_in[indx]
