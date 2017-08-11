@@ -42,7 +42,7 @@ class roc_callback(KCallBacks.Callback):
         if total_auc > self.best_auc:
             self.best_auc = total_auc
             self.best_weights = self.model.get_weights()
-            print("Best updated to: %f" % self.best_auc)
+            # print("Best updated to: %f" % self.best_auc)
 
         # print('\rroc-auc: %s - roc-auc_val: %s' % (str(round(auc, 4)), str(round(auc_val, 4))), end=100 * ' ' + '\n')
         return
@@ -68,7 +68,7 @@ class KerasRecorder(KCallBacks.Callback):
         if total_loss < self.best_loss:
             self.best_loss = total_loss
             self.best_weights = self.model.get_weights()
-            print("Best updated to: %f" %self.best_loss)
+            # print("Best updated to: %f" %self.best_loss)
 
 def roc_auc(y_true, y_pred):
     # return K.tf.metrics.auc(y_true, y_pred)[0]
@@ -116,8 +116,8 @@ def cnn_1d(train_in, train_out, test_in, test_out):
     # keras_recorder = KerasRecorder()
     keras_recorder = roc_callback(train_in, train_out, test_in, test_out)
 
-    model.fit(train_in, train_out, epochs=300, verbose=0,
-              validation_data=(test_in, test_out), callbacks=[keras_recorder])
+    model.fit(train_in, train_out, epochs=100, verbose=2,
+               callbacks=[keras_recorder])
 
 
     # Test the latest model:

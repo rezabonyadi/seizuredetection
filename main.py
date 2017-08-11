@@ -28,7 +28,7 @@ def save_details(model_details, res_details, folder):
 def kaggle_data_2014_patient_specific(address):
     folders = ["Dog_1", "Dog_2", "Dog_3", "Dog_4", "Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
                "Patient_6", "Patient_7", "Patient_8"]
-    # folders = ["Dog_1"]
+    folders = ["Patient_5"]
 
     processes = dict()
     processes["transform"] = 'fft'
