@@ -19,8 +19,10 @@ def read_kaggle_2014(data_address, subject, sampling_rate=-1, lat_cut=15.0):
 
     return None
 
+
 def read_freiburg():
     return None
+
 
 def prepare_data(data, processes):
     transformation = processes["transform"]
