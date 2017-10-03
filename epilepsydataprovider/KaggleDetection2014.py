@@ -12,6 +12,8 @@ class KaggleDetection2014:
         ictal = "ictal"
         interictal = "interictal"
         test = "test"
+        print('Reading patient %s ...' % subject)
+
         labeled_data, latencies, labels, sequences, freq, channels = \
             KaggleDetection2014.read_data_type(address, subject, ictal, sampling_rate, latency_cut)
         temp_data, temp_late, temp_labels, temp_sequences, _, _ = \
@@ -54,7 +56,6 @@ class KaggleDetection2014:
 
         keys_dic = dict()
         if components == 'test':
-
             answer_key = '%s/seizureDetectionAnswerKey.csv' % address
             with open(answer_key) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
@@ -62,13 +63,12 @@ class KaggleDetection2014:
                     # print(row)
                     keys_dic[row[0]] = (row[1], row[2])
 
-        print('Reading patient %s, %s ...' % (folder, components))
+        # print('Reading patient %s, %s ...' % (folder, components))
         labels = []
         while not done:
             i += 1
             file_name = '%s_%s_segment_%d.mat' % (folder, components, i)
             file_address = '%s/%s/%s_%s_segment_%d.mat' % (address, folder, folder, components, i)
-
             if os.path.exists(file_address):
                 data = sio.loadmat(file_address)
                 freq = data["freq"]
@@ -90,7 +90,7 @@ class KaggleDetection2014:
                     seq = -1
                     labels.append(1*(int(keys_dic[file_name][0]) == 1))
 
-                resampled_data, freq = KaggleDetection2014.resample_signal(data["data"], freq, sampling_rate)
+                resampled_data, freq = KaggleDetection2014.resample_signal(data["data"], freq, new_rate=sampling_rate)
                 data_list.append(resampled_data)
                 latencies.append(lat)
                 sequences.append(seq)
@@ -100,10 +100,16 @@ class KaggleDetection2014:
         return data_list, latencies, labels, sequences, freq, channels
 
     @staticmethod
-    def resample_signal(data, freq, sampling_rate, axis=1):
-        new_freq = int(freq * sampling_rate)
+    def resample_signal(data, freq, new_freq=None, new_rate=None, axis=1):
+        if new_rate is None:
+            sampling_rate = new_freq/freq
+        else:
+            sampling_rate = new_rate
+
         if sampling_rate == 1:
             return data, new_freq
+
+        new_freq = int(freq * sampling_rate)
 
         signal_len = data.shape[1]
         new_len = int(signal_len * sampling_rate)
