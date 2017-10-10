@@ -74,6 +74,7 @@ def divide_to_val(data, labels, latencies, seqs, perc=0.25):
     unique_seqs.pop(0) # Ignore -1 as it is the sequence number for interictals
 
     num_of_val = (int)(np.floor(perc*(len(unique_seqs))))
+    num_of_val = max(num_of_val, 1)
     val_indces = random.sample(unique_seqs, num_of_val)
     all_seq_indx = []
 
@@ -84,7 +85,6 @@ def divide_to_val(data, labels, latencies, seqs, perc=0.25):
     num_of_val = (int)(np.floor(perc * (len(interIctals))))
     val_indces = random.sample(interIctals, num_of_val)
     all_seq_indx.extend(val_indces)
-
 
     vals = []
     val_lab = []

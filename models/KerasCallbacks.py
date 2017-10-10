@@ -48,19 +48,20 @@ class roc_callback(KCallBacks.Callback):
     def on_batch_end(self, batch, logs=None):
         return
 
-class KerasRecorder(KCallBacks.Callback):
-    def on_train_begin(self, logs=None):
+class BestRecorder(KCallBacks.Callback):
+    def on_train_begin(self, logs={}):
         self.best_loss = 1000000
         self.best_weights = self.model.get_weights()
 
     # def on_batch_end(self, batch, logs=None):
     #     self.loss.append(logs.get('loss'))
 
-    def on_epoch_end(self, epoch, logs=None):
-        val_loss = logs['val_loss']
-        loss = 0 #logs['loss']
+    def on_epoch_end(self, epoch, logs={}):
+        val_loss = logs.get('val_loss')
+        loss = logs.get('loss')
         total_loss = (val_loss + loss)/2
         if total_loss < self.best_loss:
             self.best_loss = total_loss
             self.best_weights = self.model.get_weights()
             # print("Best updated to: %f" %self.best_loss)
+

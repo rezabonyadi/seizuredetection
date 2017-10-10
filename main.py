@@ -15,11 +15,16 @@ def save_details(model_details, res_details, folder):
     f_name = 'results/%s/models-%s.json' % (folder, c_time)
 
     with open(f_name, 'w') as fp:
-        json.dump(model_details, fp, indent=4)
+        json.dump(model_details.to_json(), fp, indent=4)
 
     f_name = 'results/%s/res-%s.csv' % (folder, c_time)
 
-    with open(f_name, 'w', newline='') as csv_file:
+    # Open the file
+    with open(f_name, 'w') as fh:
+        # Pass the file handle in as a lambda function to make it callable
+        model_details.summary(print_fn=lambda x: fh.write(x + '\n'))
+
+    with open(f_name, 'a', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(('subject', 'auc_train', 'auc_test'))
         [writer.writerow(r) for r in res_details]
@@ -30,13 +35,15 @@ def kaggle_data_2014_patient_specific(address):
     #            "Patient_6", "Patient_7", "Patient_8"]
     # folders = ["Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
     #            "Patient_6", "Patient_7", "Patient_8"]
-    folders = ["Dog_1"]
+    folders = ["Dog_2"]
 
     processes = dict()
-    processes["transform"] = 'fft'
-    processes["normalise"] = 1  # 0 is across channels, 1 is over samples, None is no normalisation
+    processes["transform"] = None
+    processes["normalise"] = 0  # 0 is across channels, 1 is over samples, None is no normalisation
     processes["expand"] = 1  # expands the seizure examples
-    processes["samp_rate"] = 0.4
+    processes["samp_rate"] = 0.5
+    model_indx = 2
+
 
     model_details = dict()
     res_details = []
@@ -50,13 +57,13 @@ def kaggle_data_2014_patient_specific(address):
         test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, processes)
 
         # train_out = np.reshape(data["labels"], (n_instances))
-        model, acc_train = RawDataModels.cnn_1d(train_in, train_out, val_in, val_out)
-        acc_test = RawDataModels.evaluate_model(model, test_in, test_out)
+        model, auc_train, auc_val = RawDataModels.cnn(train_in, train_out, model_indx, val_in, val_out)
+        auc_test = RawDataModels.evaluate_model(model, test_in, test_out)
 
         # model, acc_train, acc_test = RawDataModels.cnn_2d(train_in, train_out, test_in, test_out)
-        model_details[subject] = model.to_json()
+        model_details = model
 
-        res_details.append((subject, acc_train, acc_test))
+        res_details.append((subject, auc_train, auc_val, auc_test))
 
     save_details(model_details, res_details, 'kaggle_2014')
 
