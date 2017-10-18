@@ -35,7 +35,7 @@ def kaggle_data_2014_patient_specific(address):
     #            "Patient_6", "Patient_7", "Patient_8"]
     # folders = ["Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
     #            "Patient_6", "Patient_7", "Patient_8"]
-    folders = ["Dog_2"]
+    folders = ["Dog_1"]
 
     processes = dict()
     processes["transform"] = None
@@ -43,7 +43,6 @@ def kaggle_data_2014_patient_specific(address):
     processes["expand"] = 1  # expands the seizure examples
     processes["samp_rate"] = 0.5
     model_indx = 2
-
 
     model_details = dict()
     res_details = []
