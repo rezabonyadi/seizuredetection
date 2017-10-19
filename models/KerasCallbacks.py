@@ -63,5 +63,5 @@ class BestRecorder(KCallBacks.Callback):
         if total_loss < self.best_loss:
             self.best_loss = total_loss
             self.best_weights = self.model.get_weights()
-            # print("Best updated to: %f" %self.best_loss)
+            print("Best updated to: %f" %self.best_loss)
 

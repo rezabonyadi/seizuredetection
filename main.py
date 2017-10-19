@@ -26,22 +26,23 @@ def save_details(model_details, res_details, folder):
 
     with open(f_name, 'a', newline='') as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerow(('subject', 'auc_train', 'auc_test'))
+        writer.writerow(('subject', 'auc_train', 'auc_val', 'auc_test'))
         [writer.writerow(r) for r in res_details]
 
 
 def kaggle_data_2014_patient_specific(address):
-    # folders = ["Dog_1", "Dog_2", "Dog_3", "Dog_4", "Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
-    #            "Patient_6", "Patient_7", "Patient_8"]
+    folders = ["Dog_1", "Dog_2", "Dog_3", "Dog_4", "Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
+               "Patient_6", "Patient_7", "Patient_8"]
     # folders = ["Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
     #            "Patient_6", "Patient_7", "Patient_8"]
-    folders = ["Dog_1"]
+    # folders = ["Dog_1"]
 
     processes = dict()
     processes["transform"] = None
     processes["normalise"] = 0  # 0 is across channels, 1 is over samples, None is no normalisation
     processes["expand"] = 1  # expands the seizure examples
-    processes["samp_rate"] = 0.5
+    processes["samp_rate"] = 200
+    processes["val_percentage"] = 0
     model_indx = 2
 
     model_details = dict()

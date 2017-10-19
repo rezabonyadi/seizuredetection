@@ -36,8 +36,11 @@ def kaggle_data_2014_patient_specific(address):
     # folders = ["Patient_3"]
 
     processes = dict()
-    processes["transform"] = 'fft'
-    processes["expand"] = 1
+    processes["transform"] = None
+    processes["normalise"] = 0  # 0 is across channels, 1 is over samples, None is no normalisation
+    processes["expand"] = 1  # expands the seizure examples
+    processes["samp_rate"] = 200
+    model_indx = 2
 
     model_details = dict()
     train_details = np.zeros((len(folders), len(folders)))
@@ -49,8 +52,13 @@ def kaggle_data_2014_patient_specific(address):
     for subject in folders:
         data = SeizureDataRead.read_kaggle_2014(address, subject, 100)
         print("Modeling of %s in progress" %subject)
-        train_in, train_out, train_lat, test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, processes)
-        model, acc_train = RawDataModels.cnn_1d(train_in, train_out, test_in, test_out)
+        # train_in, train_out, train_lat, test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, processes)
+        train_in, train_out, train_lat, seqs, \
+        val_in, val_out, val_lat, val_seqs, \
+        test_in, test_out, test_lat = SeizureDataRead.prepare_data(data, processes)
+        model, auc_train, auc_val = RawDataModels.cnn(train_in, train_out, model_indx, val_in, val_out)
+
+        # model, acc_train = RawDataModels.cnn_1d(train_in, train_out, test_in, test_out)
         model_details[subject] = model.to_json()
         j = 0
         for subject_test in folders:

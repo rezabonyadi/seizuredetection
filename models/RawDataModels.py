@@ -41,23 +41,29 @@ def cnn(train_in, train_out, model_indx, validation_in=None, validation_out=None
     keras_recorder = KerasCallbacks.BestRecorder()
     early_call_back = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='auto')
 
-    model.fit(train_in, train_out, epochs=300, verbose=2, validation_data=(validation_in, validation_out),
-              callbacks=[keras_recorder])
-
-    # train_scores = model.predict_proba(train_in, verbose=0)
-    # train_scores = model.predict(train_in, verbose=0)
-
-    # auc_train = roc_auc(train_out[:, 0], train_scores[:, 0])
-    # print('Final results (latest model): AUC train %f' % auc_train)
+    if validation_in is not None:
+        model.fit(train_in, train_out, epochs=300, verbose=2, validation_data=(validation_in, validation_out),
+                  callbacks=[keras_recorder])
+        test_scores = model.predict(validation_in, verbose=0)
+        auc_validation = roc_auc(validation_out[:, 0], test_scores[:, 0])
+    else:
+        model.fit(train_in, train_out, epochs=300, verbose=2)
+        test_scores = 0
+        auc_validation = 0
 
     # Retrive the best model and test it
-    model.set_weights(keras_recorder.best_weights)
     train_scores = model.predict(train_in, verbose=0)
-    test_scores = model.predict(validation_in, verbose=0)
-    auc_validation = roc_auc(validation_out[:, 0], test_scores[:, 0])
     auc_train = roc_auc(train_out[:, 0], train_scores[:, 0])
-    print('Final results (best model): AUC validation %f AUC train %f' %(auc_validation, auc_train))
+    print('Final results (last model): AUC validation %f AUC train %f' % (auc_validation, auc_train))
     print('*******************************************************************')
+
+    # model.set_weights(keras_recorder.best_weights)
+    # train_scores = model.predict(train_in, verbose=0)
+    # test_scores = model.predict(validation_in, verbose=0)
+    # auc_validation = roc_auc(validation_out[:, 0], test_scores[:, 0])
+    # auc_train = roc_auc(train_out[:, 0], train_scores[:, 0])
+    # print('Final results (best model): AUC validation %f AUC train %f' %(auc_validation, auc_train))
+    # print('*******************************************************************')
 
     return model, auc_train, auc_validation
 
@@ -136,7 +142,7 @@ def init_model(indx, n_channels, n_samples):
 
     if indx == 2:
         inputs = Input(shape=(n_samples, n_channels))
-        cnv1 = Conv1D(n_channels * 8, 4, activation='relu', strides=1, padding='valid')(inputs)
+        cnv1 = Conv1D(n_channels * 2, 4, activation='relu', strides=1, padding='valid')(inputs)
         pol1 = MaxPooling1D(pool_size=4, padding='valid')(cnv1)
         cnv2 = Conv1D(n_channels * 2, 4, activation='relu', padding='valid')(pol1)
         pol2 = MaxPooling1D(pool_size=2, padding='valid')(cnv2)

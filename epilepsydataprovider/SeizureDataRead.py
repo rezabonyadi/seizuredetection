@@ -31,6 +31,7 @@ def prepare_data(data, processes):
     transformation = processes["transform"]
     normalise = processes["normalise"]
     class_to_expand = processes["expand"]
+    val_percentage = processes["val_percentage"]
 
     n_seizure = sum(data["labels"])
     n_non_seizure = len(data["labels"]) - n_seizure
@@ -46,16 +47,22 @@ def prepare_data(data, processes):
     labeled_data = transform(labeled_data, transformation, normalise)
     unlabeled_data = transform(unlabeled_data, transformation, normalise)
 
-    vals, val_lab, val_lat, val_seqs = \
-        divide_to_val(labeled_data, labels, latencies, seqs)
-
-    train_instances = len(labeled_data)
-    val_instances = len(vals)
     n_channels = labeled_data[0].shape[0]
     n_samples = labeled_data[0].shape[1]
 
+    if val_percentage is not 0:
+        vals, val_lab, val_lat, val_seqs = \
+            divide_to_val(labeled_data, labels, latencies, seqs, perc=val_percentage)
+        val_instances = len(vals)
+        vals = np.reshape(np.transpose(vals, axes=(0, 2, 1)), (val_instances, n_samples, n_channels))
+    else:
+        vals = None
+        val_lab = None
+        val_lat = None
+        val_seqs = None
+
+    train_instances = len(labeled_data)
     labeled_data = np.reshape(np.transpose(labeled_data, axes=(0, 2, 1)), (train_instances, n_samples, n_channels))
-    vals = np.reshape(np.transpose(vals, axes=(0, 2, 1)), (val_instances, n_samples, n_channels))
 
     test_instances = len(data["unlabeled_data"])
     unlabeled_data = np.reshape(np.transpose(unlabeled_data, axes=(0, 2, 1)), (test_instances, n_samples, n_channels))
