@@ -129,13 +129,22 @@ def expand_instances(train_in, train_out, latencies, seqs, class_to_expand, num_
         if train_out[i] == class_to_expand:
             to_expand_indx.append(i)
 
-    num_segs = 5
-    sample_in_segs = int(np.floor(n_samples/num_segs))
-    last_indx = sample_in_segs * num_segs
+    # segement_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
+    #                  train_in, train_out)
+    rotation_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
+                     train_in, train_out)
 
+    return train_in, train_out, seqs, latencies
+
+
+def segement_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
+                     train_in, train_out):
+    num_segs = 5
+    sample_in_segs = int(np.floor(n_samples / num_segs))
+    last_indx = sample_in_segs * num_segs
     for i in range(num_extra_instances):
         indx = np.random.random_integers(0, len(to_expand_indx) - 1)
-        indx = to_expand_indx[indx] # True index
+        indx = to_expand_indx[indx]  # True index
         instance_to_perturb = train_in[indx]
         last_seg = instance_to_perturb[last_indx:, :]
         perturbed_segs = np.reshape(instance_to_perturb, (n_channels, num_segs, sample_in_segs))
@@ -148,7 +157,36 @@ def expand_instances(train_in, train_out, latencies, seqs, class_to_expand, num_
         train_in.append(perturbed_instance_reordered)
         train_out.append(class_to_expand)
 
-    return train_in, train_out, seqs, latencies
+
+def rotation_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
+                     train_in, train_out):
+
+    for i in range(num_extra_instances):
+        indx = np.random.random_integers(0, len(to_expand_indx) - 1)
+        indx = to_expand_indx[indx]  # True index
+        instance_to_perturb = train_in[indx]
+
+        M = random_rotation(n_channels, 2)
+        perturbed_instance_reordered = np.dot(M, instance_to_perturb)
+
+        seqs.append(seqs[indx])
+        latencies.append(latencies[indx])
+        train_in.append(perturbed_instance_reordered)
+        train_out.append(class_to_expand)
+
+
+def random_rotation(n, order):
+    W = np.random.rand(n, n) - 0.5
+    W = W - np.transpose(W)
+    theta = np.random.rand(1) * 10  # 10 degrees random
+    Wp = (theta*np.pi/180.0) * W
+    Wpi = np.identity(n)
+    M = np.identity(n)
+    for j in range(order):
+        Wpi = np.dot(Wpi, Wp)
+        M = M + Wpi
+
+    return M
 
 
 def transform(data, transformation, normalise):

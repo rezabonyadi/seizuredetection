@@ -90,12 +90,7 @@ class KaggleDetection2014:
                     seq = -1
                     labels.append(1*(int(keys_dic[file_name][0]) == 1))
 
-                if sampling_rate <= 1:
-                    resampled_data, freq = KaggleDetection2014.resample_signal(data["data"], freq,
-                                                                               new_rate=sampling_rate)
-                else:
-                    resampled_data, freq = KaggleDetection2014.resample_signal(data["data"], freq,
-                                                                               new_freq=sampling_rate)
+                resampled_data, freq = KaggleDetection2014.resample_signal(data["data"], freq, new_rate=sampling_rate)
                 data_list.append(resampled_data)
                 latencies.append(lat)
                 sequences.append(seq)
