@@ -42,12 +42,12 @@ def cnn(train_in, train_out, model_indx, validation_in=None, validation_out=None
     early_call_back = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='auto')
 
     if validation_in is not None:
-        model.fit(train_in, train_out, epochs=300, verbose=2, validation_data=(validation_in, validation_out),
+        model.fit(train_in, train_out, epochs=300, verbose=0, validation_data=(validation_in, validation_out),
                   callbacks=[keras_recorder])
         test_scores = model.predict(validation_in, verbose=0)
         auc_validation = roc_auc(validation_out[:, 0], test_scores[:, 0])
     else:
-        model.fit(train_in, train_out, epochs=300, verbose=2)
+        model.fit(train_in, train_out, epochs=300, verbose=0)
         test_scores = 0
         auc_validation = 0
 
@@ -174,7 +174,7 @@ def init_model(indx, n_channels, n_samples):
         dns2 = Dense(2, activation='softmax')(drp2)
         model = Model(input=inputs, output=dns2)
 
-    model.summary()
+    # model.summary()
     optimiser = optimizers.SGD(lr=0.01, momentum=0.0, decay=0.0, nesterov=False, clipnorm=1.)
     # optimiser = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
     # optimiser = optimizers.Adagrad(lr=0.01, epsilon=1e-08, decay=0.0)

@@ -7,7 +7,7 @@ from epilepsydataprovider import SeizureDataRead
 from models import RawDataModels
 
 
-def save_details(model_details, res_details, folder):
+def save_details(model_details, settings, res_details, folder):
     if not os.path.exists('results/' + folder):
         os.makedirs('results/' + folder)
 
@@ -17,17 +17,20 @@ def save_details(model_details, res_details, folder):
     with open(f_name, 'w') as fp:
         json.dump(model_details.to_json(), fp, indent=4)
 
+    with open(f_name, 'a') as fp:
+        json.dump(settings, fp, indent=4)
+
     f_name = 'results/%s/res-%s.csv' % (folder, c_time)
 
-    # Open the file
-    with open(f_name, 'w') as fh:
-        # Pass the file handle in as a lambda function to make it callable
-        model_details.summary(print_fn=lambda x: fh.write(x + '\n'))
-
-    with open(f_name, 'a', newline='') as csv_file:
+    with open(f_name, 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(('subject', 'auc_train', 'auc_val', 'auc_test'))
         [writer.writerow(r) for r in res_details]
+
+    # Open the file
+    with open(f_name, 'a') as fh:
+        # Pass the file handle in as a lambda function to make it callable
+        model_details.summary(print_fn=lambda x: fh.write(x + '\n'))
 
 
 def kaggle_data_2014_patient_specific(address):
@@ -35,7 +38,7 @@ def kaggle_data_2014_patient_specific(address):
                "Patient_6", "Patient_7", "Patient_8"]
     # folders = ["Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
     #            "Patient_6", "Patient_7", "Patient_8"]
-    folders = ["Patient_1"]
+    folders = ["Patient_3"]
 
     processes = dict()
     processes["transform"] = None
@@ -43,6 +46,8 @@ def kaggle_data_2014_patient_specific(address):
     processes["expand"] = 1  # expands the seizure examples
     processes["samp_rate"] = 200
     processes["val_percentage"] = 0
+    processes["aug_type"] = "rotation"
+    # processes["aug_type"] = "segment"
     model_indx = 2
 
     model_details = dict()
@@ -65,7 +70,7 @@ def kaggle_data_2014_patient_specific(address):
 
         res_details.append((subject, auc_train, auc_val, auc_test))
 
-    save_details(model_details, res_details, 'kaggle_2014')
+    save_details(model_details, processes, res_details, 'kaggle_2014')
 
 
 with open('SETTINGS.json') as f:

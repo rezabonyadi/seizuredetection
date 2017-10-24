@@ -32,6 +32,7 @@ def prepare_data(data, processes):
     normalise = processes["normalise"]
     class_to_expand = processes["expand"]
     val_percentage = processes["val_percentage"]
+    aug_type = processes["aug_type"]
 
     n_seizure = sum(data["labels"])
     n_non_seizure = len(data["labels"]) - n_seizure
@@ -42,7 +43,7 @@ def prepare_data(data, processes):
     seqs = data["seq"]
 
     labeled_data, labels, seqs, latencies = expand_instances(labeled_data, labels, latencies, seqs,
-                                                             class_to_expand, n_non_seizure - n_seizure)
+                                                             class_to_expand, n_non_seizure - n_seizure, aug_type)
 
     labeled_data = transform(labeled_data, transformation, normalise)
     unlabeled_data = transform(unlabeled_data, transformation, normalise)
@@ -115,7 +116,7 @@ def divide_to_val(data, labels, latencies, seqs, perc=0.25):
 
 # def get_valid_data(data, labels, latencies, seqs, all_seq_indx, val_lab, val_lat, val_seq, vals):
 
-def expand_instances(train_in, train_out, latencies, seqs, class_to_expand, num_extra_instances):
+def expand_instances(train_in, train_out, latencies, seqs, class_to_expand, num_extra_instances, aug_type):
     if class_to_expand is None:
         return train_in, train_out, seqs, latencies
 
@@ -129,9 +130,12 @@ def expand_instances(train_in, train_out, latencies, seqs, class_to_expand, num_
         if train_out[i] == class_to_expand:
             to_expand_indx.append(i)
 
-    # segement_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
-    #                  train_in, train_out)
-    rotation_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
+    if aug_type is "segment":
+        segement_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
+                     train_in, train_out)
+
+    if aug_type is "rotation":
+        rotation_augment(class_to_expand, latencies, n_channels, n_samples, num_extra_instances, seqs, to_expand_indx,
                      train_in, train_out)
 
     return train_in, train_out, seqs, latencies
