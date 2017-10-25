@@ -38,17 +38,17 @@ def kaggle_data_2014_patient_specific(address):
                "Patient_6", "Patient_7", "Patient_8"]
     # folders = ["Patient_1", "Patient_2", "Patient_3", "Patient_4", "Patient_5",
     #            "Patient_6", "Patient_7", "Patient_8"]
-    folders = ["Patient_3"]
+    folders = ["Dog_1"]
 
     processes = dict()
     processes["transform"] = None
-    processes["normalise"] = 0  # 0 is across channels, 1 is over samples, None is no normalisation
+    processes["normalise"] = None  # 0 is across channels, 1 is over samples, None is no normalisation
     processes["expand"] = 1  # expands the seizure examples
     processes["samp_rate"] = 200
     processes["val_percentage"] = 0
     processes["aug_type"] = "rotation"
     # processes["aug_type"] = "segment"
-    model_indx = 2
+    model_indx = 3
 
     model_details = dict()
     res_details = []

@@ -1,5 +1,5 @@
 import numpy as np
-from keras.layers import Conv2D, Conv1D, Dropout, Flatten, MaxPooling1D, Input, LSTM, AveragePooling1D
+from keras.layers import Conv2D, Conv1D, Dropout, Flatten, MaxPooling1D, Input, LSTM, MaxPooling2D
 from keras.layers import Dense, LeakyReLU
 from keras.layers.core import Reshape
 from keras.models import Sequential, Model
@@ -41,13 +41,15 @@ def cnn(train_in, train_out, model_indx, validation_in=None, validation_out=None
     keras_recorder = KerasCallbacks.BestRecorder()
     early_call_back = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='auto')
 
+    showRes = 2
+
     if validation_in is not None:
-        model.fit(train_in, train_out, epochs=300, verbose=0, validation_data=(validation_in, validation_out),
+        model.fit(train_in, train_out, epochs=300, verbose=showRes, validation_data=(validation_in, validation_out),
                   callbacks=[keras_recorder])
         test_scores = model.predict(validation_in, verbose=0)
         auc_validation = roc_auc(validation_out[:, 0], test_scores[:, 0])
     else:
-        model.fit(train_in, train_out, epochs=300, verbose=0)
+        model.fit(train_in, train_out, epochs=300, verbose=showRes)
         test_scores = 0
         auc_validation = 0
 
@@ -79,26 +81,27 @@ def cnn(train_in, train_out, model_indx, validation_in=None, validation_out=None
 #     train_in = np.reshape(train_in, (n_instances_train, n_samples, n_channels, 1))
 #     test_in = np.reshape(test_in, (n_instances_test, n_samples, n_channels, 1))
 #
-#     model = Sequential()
-#     model.add(Conv2D(n_channels * 2, (10, n_channels), input_shape=(n_samples, n_channels, 1)))
-#     model.add(Reshape((-1, n_channels * 2, 1)))
-#
-#     # model.add(Conv2D(n_channels * 2, (10, n_channels * 2), activation='tanh'))
-#     # model.add(LeakyReLU(alpha=0.3))
-#     # model.add(Reshape((-1, n_channels * 2, 1)))
-#
-#     model.add(Conv2D(n_channels * 2, (10, n_channels * 2), activation='tanh'))
-#     model.add(LeakyReLU(alpha=0.3))
-#     model.add(Reshape((-1, n_channels * 2)))
-#
-#     model.add(Conv1D(n_channels * 2, 5, activation='tanh'))
-#     model.add(Conv1D(n_channels * 2, 10))
-#     model.add(LeakyReLU(alpha=0.3))
-#     model.add(Flatten())
-#     model.add(Dense(64, activation='relu'))
-#     model.add(Dropout(0.5))
-#     model.add(Dense(2, activation='softmax'))
-#     # model.summary(print_fn=my_print_fcn)
+    # model = Sequential()
+    #
+    # model.add(Conv2D(n_channels * 2, (10, n_channels), input_shape=(n_samples, n_channels, 1)))
+    # model.add(Reshape((-1, n_channels * 2, 1)))
+    #
+    # # model.add(Conv2D(n_channels * 2, (10, n_channels * 2), activation='tanh'))
+    # # model.add(LeakyReLU(alpha=0.3))
+    # # model.add(Reshape((-1, n_channels * 2, 1)))
+    #
+    # model.add(Conv2D(n_channels * 2, (10, n_channels * 2), activation='tanh'))
+    # model.add(LeakyReLU(alpha=0.3))
+    # model.add(Reshape((-1, n_channels * 2)))
+    #
+    # model.add(Conv1D(n_channels * 2, 5, activation='tanh'))
+    # model.add(Conv1D(n_channels * 2, 10))
+    # model.add(LeakyReLU(alpha=0.3))
+    # model.add(Flatten())
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dropout(0.5))
+    # model.add(Dense(2, activation='softmax'))
+    # model.summary(print_fn=my_print_fcn)
 #
 #     model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
 #     model.fit(train_in, train_out, epochs=1000, verbose=2)
@@ -159,15 +162,13 @@ def init_model(indx, n_channels, n_samples):
 
     if indx == 3:
         inputs = Input(shape=(n_samples, n_channels))
-        cnv1 = Conv1D(n_channels * 2, 4, activation='relu', strides=1, padding='valid')(inputs)
-        pol1 = AveragePooling1D(pool_size=4, padding='valid')(cnv1)
-        cnv2 = Conv1D(n_channels * 4, 4, activation='relu', padding='valid')(pol1)
-        pol2 = AveragePooling1D(pool_size=2, padding='valid')(cnv2)
-        cnv3 = Conv1D(n_channels * 8, 4, activation='relu', padding='valid')(pol2)
-        pol3 = AveragePooling1D(pool_size=2, padding='valid')(cnv3)
-        cnv4 = Conv1D(n_channels * 8, 4, activation='relu', padding='valid')(pol3)
-        pol4 = AveragePooling1D(pool_size=2, padding='valid')(cnv4)
-        flt1 = Flatten()(pol4)
+        rsh0 = Reshape((-1, n_channels, 1))(inputs)
+        cnv1 = Conv2D(n_channels * 2, (4, n_channels), activation='relu', strides=(1, 1), padding='valid')(rsh0)
+        pol1 = MaxPooling2D(pool_size=(2, 1), padding='valid')(cnv1)
+        rsh1 = Reshape((-1, n_channels * 2, 1))(pol1)
+        cnv2 = Conv2D(n_channels * 2, (4, n_channels * 2), activation='relu', strides=(1, 1), padding='valid')(rsh1)
+        pol2 = MaxPooling2D(pool_size=(2, 1), padding='valid')(cnv2)
+        flt1 = Flatten()(pol2)
         drp1 = Dropout(0.2)(flt1)
         dns1 = Dense(128, activation='sigmoid')(drp1)
         drp2 = Dropout(0.5)(dns1)
